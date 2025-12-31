@@ -1,0 +1,40 @@
+{
+  "dependencies": {
+    "com.vrchat.base": {
+      "version": "3.10.1"
+    },
+    "com.vrchat.avatars": {
+      "version": "3.10.1"
+    },
+    "com.vrcfury.vrcfury": {
+      "version": "1.1272.0"
+    },
+    "nadena.dev.modular-avatar": {
+      "version": "2.14.3"
+    },
+    "nadena.dev.ndmf": {
+      "version": "1.10.0-beta.0"
+    },
+    "d4rkpl4y3r.d4rkavataroptimizer": {
+      "version": "3.12.5"
+    },
+    "adjerry91.vrcft.templates": {
+      "version": "7.0.4"
+    },
+    "gogoloco": {
+      "version": "1.8.3"
+    },
+    "wholesome.dependencies": {
+      "version": "1.0.26"
+    },
+    "wholesomevr.sps-configurator": {
+      "version": "2.0.11"
+    },
+    "com.poiyomi.toon": {
+      "version": "9.2.79"
+    },
+    "com.unity.test": {
+      "version": "1.0.0"
+    }
+  }
+}
