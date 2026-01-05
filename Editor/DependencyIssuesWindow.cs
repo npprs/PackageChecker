@@ -6,12 +6,8 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// UI window that displays dependency issues and provides options to fix them.
-/// </summary>
 public class DependencyIssuesWindow : EditorWindow
 {
-    // Simplified size constants (base 2)
     private const int SIZE_8 = 8;
     private const int SIZE_16 = 16;
     private const int SIZE_64 = 64;
@@ -20,15 +16,29 @@ public class DependencyIssuesWindow : EditorWindow
     private const int SIZE_512 = 512;
 
     private static List<NoppersDependencyChecker.DependencyIssue> _issues = new();
+    private static DependencyIssuesWindow? _instance;
     private Vector2 _scrollPosition;
     private bool _showAdvancedOptions = false;
 
     public static void ShowWindow(List<NoppersDependencyChecker.DependencyIssue> issues)
     {
+        if (_instance != null)
+        {
+            _instance.Close();
+        }
+
         _issues = issues;
-        var window = GetWindow<DependencyIssuesWindow>("Dependency Check");
-        window.minSize = new Vector2(SIZE_512 + SIZE_128, SIZE_512);
-        window.Show();
+        _instance = GetWindow<DependencyIssuesWindow>("Dependency Check");
+        _instance.minSize = new Vector2(SIZE_512 + SIZE_128, SIZE_512);
+        _instance.Show();
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
     }
 
     private void AcceptCurrentVersions()
