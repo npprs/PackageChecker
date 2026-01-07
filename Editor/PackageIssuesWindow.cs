@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-public class DependencyIssuesWindow : EditorWindow
+public class PackageIssuesWindow : EditorWindow
 {
     private const int SIZE_8 = 8;
     private const int SIZE_16 = 16;
@@ -15,22 +15,22 @@ public class DependencyIssuesWindow : EditorWindow
     private const int SIZE_256 = 256;
     private const int SIZE_512 = 512;
 
-    private static List<NoppersDependencyChecker.DependencyIssue> _issues = new();
-    private static DependencyIssuesWindow? _instance;
+    private static List<NoppersPackageChecker.PackageIssue> _issues = new();
+    private static PackageIssuesWindow? _instance;
     private Vector2 _scrollPosition;
     private bool _showAdvancedOptions = false;
 
-    public static void ShowWindow(List<NoppersDependencyChecker.DependencyIssue> issues)
+    public static void ShowWindow(List<NoppersPackageChecker.PackageIssue> issues)
     {
         // Close all existing instances
-        var existingWindows = Resources.FindObjectsOfTypeAll<DependencyIssuesWindow>();
+        var existingWindows = Resources.FindObjectsOfTypeAll<PackageIssuesWindow>();
         foreach (var window in existingWindows)
         {
             window.Close();
         }
 
         _issues = issues;
-        _instance = GetWindow<DependencyIssuesWindow>("Dependency Check");
+        _instance = GetWindow<PackageIssuesWindow>("Package Check");
         _instance.minSize = new Vector2(SIZE_512 + SIZE_128, SIZE_512);
         _instance.Show();
     }
@@ -42,7 +42,7 @@ public class DependencyIssuesWindow : EditorWindow
             EditorApplication.delayCall += () =>
             {
                 if (this != null) Close();
-                NoppersDependencyChecker.CheckVersions();
+                NoppersPackageChecker.CheckVersions();
             };
         }
     }
@@ -59,7 +59,7 @@ public class DependencyIssuesWindow : EditorWindow
     {
         try
         {
-            string locksDir = NoppersDependencyChecker.GetLocksDirectory();
+            string locksDir = NoppersPackageChecker.GetLocksDirectory();
             string disabledDir = Path.Combine(Path.GetDirectoryName(locksDir)!, "Locks_Disabled").Replace("\\", "/");
 
             // Find all lock files
@@ -130,12 +130,12 @@ public class DependencyIssuesWindow : EditorWindow
         try
         {
             // Update manifest with required versions
-            string manifestPath = NoppersDependencyChecker.MANIFEST_PATH;
+            string manifestPath = NoppersPackageChecker.MANIFEST_PATH;
 
-            if (!NoppersDependencyChecker.UpdateManifest(
+            if (!NoppersPackageChecker.UpdateManifest(
                 manifestPath,
                 _issues,
-                NoppersDependencyChecker.GetManifest,
+                NoppersPackageChecker.GetManifest,
                 (path, content) => {
                     try
                     {
@@ -353,7 +353,7 @@ public class DependencyIssuesWindow : EditorWindow
             advancedWarningStyle.wordWrap = true;
 
             EditorGUILayout.LabelField(
-                "Fix all attempts to repair package dependency issues. If you would like to use your own packages you can disable the lock files.",
+                "Fix all attempts to repair package package issues. If you would like to use your own packages you can disable the lock files.",
                 advancedWarningStyle
             );
 

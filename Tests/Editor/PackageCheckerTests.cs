@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace DependencyCheckerTests
+namespace PackageCheckerTests
 {
     public class ValidateManifestStructureTests
     {
@@ -22,10 +22,10 @@ namespace DependencyCheckerTests
         {
             // Given
             string json = LoadTestJson("valid_manifest.json");
-            var manifest = JsonConvert.DeserializeObject<NoppersDependencyChecker.ManifestData>(json);
+            var manifest = JsonConvert.DeserializeObject<NoppersPackageChecker.ManifestData>(json);
 
             // When
-            bool result = NoppersDependencyChecker.ValidateManifestStructure(manifest);
+            bool result = NoppersPackageChecker.ValidateManifestStructure(manifest);
 
             // Then
             Assert.IsTrue(result);
@@ -36,10 +36,10 @@ namespace DependencyCheckerTests
         {
             // Given
             string json = LoadTestJson("empty_locked.json");
-            var manifest = JsonConvert.DeserializeObject<NoppersDependencyChecker.ManifestData>(json);
+            var manifest = JsonConvert.DeserializeObject<NoppersPackageChecker.ManifestData>(json);
 
             // When
-            bool result = NoppersDependencyChecker.ValidateManifestStructure(manifest);
+            bool result = NoppersPackageChecker.ValidateManifestStructure(manifest);
 
             // Then
             Assert.IsFalse(result);
@@ -50,10 +50,10 @@ namespace DependencyCheckerTests
         {
             // Given
             string json = LoadTestJson("missing_locked.json");
-            var manifest = JsonConvert.DeserializeObject<NoppersDependencyChecker.ManifestData>(json);
+            var manifest = JsonConvert.DeserializeObject<NoppersPackageChecker.ManifestData>(json);
 
             // When
-            bool result = NoppersDependencyChecker.ValidateManifestStructure(manifest);
+            bool result = NoppersPackageChecker.ValidateManifestStructure(manifest);
 
             // Then
             Assert.IsFalse(result);
@@ -64,10 +64,10 @@ namespace DependencyCheckerTests
         {
             // Given
             string json = LoadTestJson("null_version.json");
-            var manifest = JsonConvert.DeserializeObject<NoppersDependencyChecker.ManifestData>(json);
+            var manifest = JsonConvert.DeserializeObject<NoppersPackageChecker.ManifestData>(json);
 
             // When
-            bool result = NoppersDependencyChecker.ValidateManifestStructure(manifest);
+            bool result = NoppersPackageChecker.ValidateManifestStructure(manifest);
 
             // Then
             Assert.IsFalse(result);
@@ -84,7 +84,7 @@ namespace DependencyCheckerTests
             string newVersion = "8.1.166";
 
             // When
-            bool result = NoppersDependencyChecker.IsVersionGreater(currentVersion, newVersion);
+            bool result = NoppersPackageChecker.IsVersionGreater(currentVersion, newVersion);
 
             // Then
             Assert.IsTrue(result);
@@ -98,7 +98,7 @@ namespace DependencyCheckerTests
             string newVersion = "9.3.63";
 
             // When
-            bool result = NoppersDependencyChecker.IsVersionGreater(currentVersion, newVersion);
+            bool result = NoppersPackageChecker.IsVersionGreater(currentVersion, newVersion);
 
             // Then
             Assert.IsFalse(result);
@@ -112,7 +112,7 @@ namespace DependencyCheckerTests
             string newVersion = "1.1271.0";
 
             // When
-            bool result = NoppersDependencyChecker.IsVersionGreater(currentVersion, newVersion);
+            bool result = NoppersPackageChecker.IsVersionGreater(currentVersion, newVersion);
 
             // Then
             Assert.IsTrue(result);
@@ -126,7 +126,7 @@ namespace DependencyCheckerTests
             string newVersion = "1.1278.0";
 
             // When
-            bool result = NoppersDependencyChecker.IsVersionGreater(currentVersion, newVersion);
+            bool result = NoppersPackageChecker.IsVersionGreater(currentVersion, newVersion);
 
             // Then
             Assert.IsFalse(result);
@@ -140,7 +140,7 @@ namespace DependencyCheckerTests
             string newVersion = "1.14.4-beta.1";
 
             // When
-            bool result = NoppersDependencyChecker.IsVersionGreater(currentVersion, newVersion);
+            bool result = NoppersPackageChecker.IsVersionGreater(currentVersion, newVersion);
 
             // Then
             Assert.IsTrue(result);
@@ -154,7 +154,7 @@ namespace DependencyCheckerTests
             string newVersion = "1.14.4-beta.2";
 
             // When
-            bool result = NoppersDependencyChecker.IsVersionGreater(currentVersion, newVersion);
+            bool result = NoppersPackageChecker.IsVersionGreater(currentVersion, newVersion);
 
             // Then
             Assert.IsFalse(result);
@@ -168,7 +168,7 @@ namespace DependencyCheckerTests
             string newVersion = "1.0.0";
 
             // When
-            bool result = NoppersDependencyChecker.IsVersionGreater(currentVersion, newVersion);
+            bool result = NoppersPackageChecker.IsVersionGreater(currentVersion, newVersion);
 
             // Then
             Assert.IsFalse(result);
@@ -181,7 +181,7 @@ namespace DependencyCheckerTests
         public void Should_ReturnValidLocksPath()
         {
             // When
-            string result = NoppersDependencyChecker.GetLocksDirectory();
+            string result = NoppersPackageChecker.GetLocksDirectory();
 
             // Then
             Assert.IsTrue(result.EndsWith("Locks"));
@@ -215,7 +215,7 @@ namespace DependencyCheckerTests
             string testLocksDir = GetTestLocksDir();
 
             // When
-            var result = NoppersDependencyChecker.GetLockFiles(testLocksDir, NoppersDependencyChecker.GetManifest, NoppersDependencyChecker.ValidateManifestStructure);
+            var result = NoppersPackageChecker.GetLockFiles(testLocksDir, NoppersPackageChecker.GetManifest, NoppersPackageChecker.ValidateManifestStructure);
 
             // Then
             Assert.IsTrue(result.Count == 3);
@@ -228,7 +228,7 @@ namespace DependencyCheckerTests
             string testLocksDir = GetTestLocksDirEmpty();
 
             // When
-            var result = NoppersDependencyChecker.GetLockFiles(testLocksDir, NoppersDependencyChecker.GetManifest, NoppersDependencyChecker.ValidateManifestStructure);
+            var result = NoppersPackageChecker.GetLockFiles(testLocksDir, NoppersPackageChecker.GetManifest, NoppersPackageChecker.ValidateManifestStructure);
 
             // Then
             Assert.IsTrue(result.Count == 0);
@@ -241,7 +241,7 @@ namespace DependencyCheckerTests
             string testLocksDir = GetTestLocksDirInvalidManifests();
 
             // When
-            var result = NoppersDependencyChecker.GetLockFiles(testLocksDir, NoppersDependencyChecker.GetManifest, NoppersDependencyChecker.ValidateManifestStructure);
+            var result = NoppersPackageChecker.GetLockFiles(testLocksDir, NoppersPackageChecker.GetManifest, NoppersPackageChecker.ValidateManifestStructure);
 
             // Then
             Assert.IsTrue(result.Count == 1);
@@ -261,10 +261,10 @@ namespace DependencyCheckerTests
         {
             // Given
             string testLocksDir = GetTestLocksDirMerge();
-            var lockFiles = NoppersDependencyChecker.GetLockFiles(testLocksDir, NoppersDependencyChecker.GetManifest, NoppersDependencyChecker.ValidateManifestStructure);
+            var lockFiles = NoppersPackageChecker.GetLockFiles(testLocksDir, NoppersPackageChecker.GetManifest, NoppersPackageChecker.ValidateManifestStructure);
 
             // When
-            var result = NoppersDependencyChecker.MergeLockFiles(lockFiles, NoppersDependencyChecker.IsVersionGreater);
+            var result = NoppersPackageChecker.MergeLockFiles(lockFiles, NoppersPackageChecker.IsVersionGreater);
 
             // Then
             Assert.AreEqual("1.1271.0", result["com.vrcfury.vrcfury"]);
@@ -291,7 +291,7 @@ namespace DependencyCheckerTests
             string nonExistentPath = "path/to/nonexistent/file.json";
 
             // When
-            string result = NoppersDependencyChecker.GetManifest(nonExistentPath);
+            string result = NoppersPackageChecker.GetManifest(nonExistentPath);
 
             // Then
             Assert.IsNull(result);
@@ -304,7 +304,7 @@ namespace DependencyCheckerTests
             string testFilePath = GetTestDataPath("valid_manifest.json");
 
             // When
-            string result = NoppersDependencyChecker.GetManifest(testFilePath);
+            string result = NoppersPackageChecker.GetManifest(testFilePath);
 
             // Then
             Assert.IsTrue(result.Contains("locked"));
@@ -317,11 +317,11 @@ namespace DependencyCheckerTests
         public void Given_Selection_Should_ReturnOnlySelected()
         {
             // Given
-            var currentPackages = new Dictionary<string, NoppersDependencyChecker.PackageInfo>
+            var currentPackages = new Dictionary<string, NoppersPackageChecker.PackageInfo>
             {
-                { "package1", new NoppersDependencyChecker.PackageInfo { version = "1.2.3" } },
-                { "package2", new NoppersDependencyChecker.PackageInfo { version = "2.3.4" } },
-                { "package3", new NoppersDependencyChecker.PackageInfo { version = "5.6.7" } }
+                { "package1", new NoppersPackageChecker.PackageInfo { version = "1.2.3" } },
+                { "package2", new NoppersPackageChecker.PackageInfo { version = "2.3.4" } },
+                { "package3", new NoppersPackageChecker.PackageInfo { version = "5.6.7" } }
             };
 
             var packageSelection = new Dictionary<string, bool>
@@ -332,7 +332,7 @@ namespace DependencyCheckerTests
             };
 
             // When
-            var result = NoppersDependencyChecker.ComposeLockFile(currentPackages, packageSelection);
+            var result = NoppersPackageChecker.ComposeLockFile(currentPackages, packageSelection);
 
             // Then
             Assert.AreEqual("1.2.3", result.locked["package1"].version);
@@ -343,9 +343,9 @@ namespace DependencyCheckerTests
         public void Given_NoSelection_Should_ReturnEmpty()
         {
             // Given
-            var currentPackages = new Dictionary<string, NoppersDependencyChecker.PackageInfo>
+            var currentPackages = new Dictionary<string, NoppersPackageChecker.PackageInfo>
             {
-                { "package1", new NoppersDependencyChecker.PackageInfo { version = "1.2.3" } }
+                { "package1", new NoppersPackageChecker.PackageInfo { version = "1.2.3" } }
             };
 
             var packageSelection = new Dictionary<string, bool>
@@ -354,7 +354,7 @@ namespace DependencyCheckerTests
             };
 
             // When
-            var result = NoppersDependencyChecker.ComposeLockFile(currentPackages, packageSelection);
+            var result = NoppersPackageChecker.ComposeLockFile(currentPackages, packageSelection);
 
             // Then
             Assert.AreEqual(0, result.locked.Count);
@@ -381,19 +381,19 @@ namespace DependencyCheckerTests
             string expectedManifestPath = GetTestDataPath("vpm-manifest-results.json");
 
             // Get manifest from both files
-            string manifestJson = NoppersDependencyChecker.GetManifest(manifestPath);
-            string lockJson = NoppersDependencyChecker.GetManifest(lockPath);
-            string expectedManifestJson = NoppersDependencyChecker.GetManifest(expectedManifestPath);
+            string manifestJson = NoppersPackageChecker.GetManifest(manifestPath);
+            string lockJson = NoppersPackageChecker.GetManifest(lockPath);
+            string expectedManifestJson = NoppersPackageChecker.GetManifest(expectedManifestPath);
 
-            var lockData = JsonConvert.DeserializeObject<NoppersDependencyChecker.ManifestData>(lockJson);
+            var lockData = JsonConvert.DeserializeObject<NoppersPackageChecker.ManifestData>(lockJson);
 
             // Compare lock file to get updates
-            var mergedRequirements = NoppersDependencyChecker.MergeLockFiles(
-                new List<NoppersDependencyChecker.ManifestData> { lockData },
-                NoppersDependencyChecker.IsVersionGreater
+            var mergedRequirements = NoppersPackageChecker.MergeLockFiles(
+                new List<NoppersPackageChecker.ManifestData> { lockData },
+                NoppersPackageChecker.IsVersionGreater
             );
 
-            var issues = NoppersDependencyChecker.CompareManifestsWithMerged(
+            var issues = NoppersPackageChecker.CompareManifestsWithMerged(
                 mergedRequirements,
                 manifestJson
             );
@@ -407,10 +407,10 @@ namespace DependencyCheckerTests
             }
 
             // When
-            bool result = NoppersDependencyChecker.UpdateManifest(
+            bool result = NoppersPackageChecker.UpdateManifest(
                 manifestPath,
                 issues,
-                NoppersDependencyChecker.GetManifest,
+                NoppersPackageChecker.GetManifest,
                 writeManifest
             );
 

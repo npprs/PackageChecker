@@ -18,7 +18,7 @@ public class GenerateLockWindow : EditorWindow
     private string _authorName = "";
     private string _assetName = "";
     private Vector2 _scrollPosition;
-    private Dictionary<string, NoppersDependencyChecker.PackageInfo>? _currentPackages;
+    private Dictionary<string, NoppersPackageChecker.PackageInfo>? _currentPackages;
     private Dictionary<string, bool> _packageSelection = new();
 
     private const string VPM_RESOLVER = "com.vrchat.core.vpm-resolver";
@@ -41,8 +41,8 @@ public class GenerateLockWindow : EditorWindow
     {
         try
         {
-            string? manifestJson = File.ReadAllText(NoppersDependencyChecker.MANIFEST_PATH);
-            var manifestData = JsonConvert.DeserializeObject<NoppersDependencyChecker.ManifestData>(manifestJson);
+            string? manifestJson = File.ReadAllText(NoppersPackageChecker.MANIFEST_PATH);
+            var manifestData = JsonConvert.DeserializeObject<NoppersPackageChecker.ManifestData>(manifestJson);
             _currentPackages = manifestData?.locked;
 
             _packageSelection.Clear();
@@ -63,10 +63,10 @@ public class GenerateLockWindow : EditorWindow
 
     private void GenerateLockFile()
     {
-        var lockData = NoppersDependencyChecker.ComposeLockFile(_currentPackages, _packageSelection);
-        string locksDir = NoppersDependencyChecker.GetLocksDirectory();
+        var lockData = NoppersPackageChecker.ComposeLockFile(_currentPackages, _packageSelection);
+        string locksDir = NoppersPackageChecker.GetLocksDirectory();
         string fileName = $"{_authorName}_{_assetName}.lock.json";
-        var success = NoppersDependencyChecker.CreateLockFile(lockData, fileName, locksDir);
+        var success = NoppersPackageChecker.CreateLockFile(lockData, fileName, locksDir);
 
         if (success)
         {
@@ -99,7 +99,7 @@ public class GenerateLockWindow : EditorWindow
         infoStyle.normal.textColor = new Color(0.9f, 0.9f, 0.9f);
 
         EditorGUILayout.LabelField(
-            "Create a lock file snapshot of your current VPM packages for this asset. Ensure you export the dependency checker along with the lock files.",
+            "Create a lock file snapshot of your current VPM packages for this asset. Ensure you export the package checker along with the lock files.",
             infoStyle
         );
 
