@@ -22,15 +22,29 @@ public class DependencyIssuesWindow : EditorWindow
 
     public static void ShowWindow(List<NoppersDependencyChecker.DependencyIssue> issues)
     {
-        if (_instance != null)
+        // Close all existing instances
+        var existingWindows = Resources.FindObjectsOfTypeAll<DependencyIssuesWindow>();
+        foreach (var window in existingWindows)
         {
-            _instance.Close();
+            window.Close();
         }
 
         _issues = issues;
         _instance = GetWindow<DependencyIssuesWindow>("Dependency Check");
         _instance.minSize = new Vector2(SIZE_512 + SIZE_128, SIZE_512);
         _instance.Show();
+    }
+
+    private void OnEnable()
+    {
+        if (_instance == this && (_issues == null || _issues.Count == 0))
+        {
+            EditorApplication.delayCall += () =>
+            {
+                if (this != null) Close();
+                NoppersDependencyChecker.CheckVersions();
+            };
+        }
     }
 
     private void OnDestroy()
@@ -103,13 +117,11 @@ public class DependencyIssuesWindow : EditorWindow
         catch (Exception ex)
         {
             Debug.LogError($"Failed to accept current versions: {ex.Message}");
-            EditorUtility.DisplayDialog("Error", $"Failed to disable lock files:\n{ex.Message}", "OK");
         }
     }
 
     public static void OpenPackageResolverAndResolve()
     {
-        // Just call Resolver.ResolveManifest directly - it's a static method, no window needed
         TriggerResolveAll();
     }
 
@@ -139,7 +151,6 @@ public class DependencyIssuesWindow : EditorWindow
             ))
             {
                 Debug.LogError("Failed to update manifest with required versions.");
-                EditorUtility.DisplayDialog("Error", "Failed to update manifest. Check console for details.", "OK");
                 return;
             }
 
@@ -160,9 +171,6 @@ public class DependencyIssuesWindow : EditorWindow
             if (resolverType == null)
             {
                 Debug.LogWarning("Could not find Resolver class. Manifest updated but you'll need to click 'Resolve All' manually.");
-                EditorUtility.DisplayDialog("Partial Success",
-                    "Manifest updated with required versions.\n\nPlease open VCC and click 'Resolve All' to install packages.",
-                    "OK");
                 return;
             }
 
@@ -178,15 +186,11 @@ public class DependencyIssuesWindow : EditorWindow
             else
             {
                 Debug.LogWarning("Could not find ResolveManifest method on Resolver class. Manifest updated but you'll need to click 'Resolve All' manually.");
-                EditorUtility.DisplayDialog("Partial Success",
-                    "Manifest updated with required versions.\n\nPlease open VCC and click 'Resolve All' to install packages.",
-                    "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.LogError($"Failed to trigger Resolve All: {ex.Message}\n{ex.StackTrace}");
-            EditorUtility.DisplayDialog("Error", $"Failed to run Fix All:\n{ex.Message}", "OK");
         }
     }
 
@@ -201,7 +205,7 @@ public class DependencyIssuesWindow : EditorWindow
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         EditorGUILayout.Space(SIZE_8);
 
-        EditorGUILayout.LabelField("HOW TO FIX THESE ISSUES", headerStyle);
+        EditorGUILayout.LabelField("FIX PACKAGE ISSUES", headerStyle);
         EditorGUILayout.Space(SIZE_16);
 
         var infoStyle = new GUIStyle(EditorStyles.label);
@@ -210,7 +214,7 @@ public class DependencyIssuesWindow : EditorWindow
         infoStyle.normal.textColor = new Color(0.9f, 0.9f, 0.9f);
 
         EditorGUILayout.LabelField(
-            "Dependency mismatches can cause compilation errors, runtime failures, and compatibility issues.\n",
+            "Incorrect packages can cause unexpected errors with your avatar and attachments. Please installed the correct package versions.\n",
             infoStyle
         );
 
@@ -349,7 +353,7 @@ public class DependencyIssuesWindow : EditorWindow
             advancedWarningStyle.wordWrap = true;
 
             EditorGUILayout.LabelField(
-                "These actions will modify project files directly. Only use if you understand the implications.",
+                "Fix all attempts to repair package dependency issues. If you would like to use your own packages you can disable the lock files.",
                 advancedWarningStyle
             );
 
@@ -360,7 +364,7 @@ public class DependencyIssuesWindow : EditorWindow
             GUILayout.FlexibleSpace();
 
             GUI.backgroundColor = new Color(1f, 0.8f, 0.2f);
-            if (GUILayout.Button("⚠️ Fix All (Experimental)", GUILayout.Height(SIZE_16 + SIZE_8), GUILayout.Width(SIZE_128 + SIZE_64)))
+            if (GUILayout.Button("Fix All (Experimental)", GUILayout.Height(SIZE_16 + SIZE_8), GUILayout.Width(SIZE_128 + SIZE_64)))
             {
                 TriggerResolveAll();
                 Close();
@@ -369,7 +373,7 @@ public class DependencyIssuesWindow : EditorWindow
 
             GUILayout.Space(SIZE_8);
 
-            if (GUILayout.Button("Accept Current Versions", GUILayout.Height(SIZE_16 + SIZE_8), GUILayout.Width(SIZE_128 + SIZE_64)))
+            if (GUILayout.Button("Disable Locks", GUILayout.Height(SIZE_16 + SIZE_8), GUILayout.Width(SIZE_128 + SIZE_64)))
             {
                 AcceptCurrentVersions();
             }
@@ -391,7 +395,7 @@ public class DependencyIssuesWindow : EditorWindow
         reminderStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
 
         EditorGUILayout.LabelField(
-            "Dismissing this window won't resolve the issues",
+            "Dismissing this window won't resolve package issues.",
             reminderStyle
         );
 

@@ -3,10 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Newtonsoft.Json;
-using SemanticVersioning;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NOPPERS.DependencyChecker.Editor.Tests")]
 
@@ -14,45 +11,14 @@ public class NoppersDependencyChecker
 {
     private static bool DEBUG = false;
     public const string MANIFEST_PATH = "Packages/vpm-manifest.json";
-
     internal static bool IsDebugEnabled() => DEBUG;
     internal static void SetDebugMode(bool enabled) => DEBUG = enabled;
 
-    public static string GetLocksDirectory([System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "")
-    {
-        string editorDir = Path.GetDirectoryName(sourceFilePath);
-        return Path.GetFullPath(Path.Combine(editorDir, "..", "Locks"));
-    }
-
-    private static void Log(string message)
-    {
-        if (DEBUG)
-        {
-            Debug.Log(message);
-        }
-    }
-
-    public static bool IsVersionGreater(string currentVersion, string newVersion)
-    {
-        try
-        {
-            var currentVer = SemanticVersioning.Version.Parse(currentVersion);
-            var newVer = SemanticVersioning.Version.Parse(newVersion);
-            return currentVer > newVer;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    [System.Serializable]
     public class ManifestData
     {
         public Dictionary<string, PackageInfo> locked;
     }
 
-    [System.Serializable]
     public class PackageInfo
     {
         public string version;
@@ -73,6 +39,16 @@ public class NoppersDependencyChecker
     }
 
     [MenuItem("Tools/NOPPERS/DependencyChecker/Check Versions")]
+    public static void CheckVersionsMenuItem()
+    {
+        CheckVersions();
+    }
+
+    public static void CheckVersionsDelayed()
+    {
+        EditorApplication.delayCall += CheckVersions;
+    }
+
     public static void CheckVersions()
     {
         // Fetch and process vpm-manifest.json
@@ -117,6 +93,7 @@ public class NoppersDependencyChecker
         }
     }
 
+
     [MenuItem("Tools/NOPPERS/DependencyChecker/Generate Lock File")]
     public static void OpenGenerateLockWindow()
     {
@@ -140,6 +117,12 @@ public class NoppersDependencyChecker
             Log($"DependencyChecker -> Error reading file: {path} - {ex.Message}");
             return null;
         }
+    }
+
+    public static string GetLocksDirectory([System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "")
+    {
+        string editorDir = Path.GetDirectoryName(sourceFilePath);
+        return Path.GetFullPath(Path.Combine(editorDir, "..", "Locks"));
     }
 
     internal static bool ValidateManifestStructure(ManifestData data)
@@ -403,6 +386,28 @@ public class NoppersDependencyChecker
         catch (Exception ex)
         {
             Debug.LogError($"Failed to update manifest: {ex.Message}\n{ex.StackTrace}");
+            return false;
+        }
+    }
+
+    private static void Log(string message)
+    {
+        if (DEBUG)
+        {
+            Debug.Log(message);
+        }
+    }
+
+    public static bool IsVersionGreater(string currentVersion, string newVersion)
+    {
+        try
+        {
+            var currentVer = SemanticVersioning.Version.Parse(currentVersion);
+            var newVer = SemanticVersioning.Version.Parse(newVersion);
+            return currentVer > newVer;
+        }
+        catch
+        {
             return false;
         }
     }

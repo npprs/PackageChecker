@@ -1,0 +1,35 @@
+root = true
+
+[*.cs]
+# Code style
+indent_style = space
+indent_size = 4
+end_of_line = crlf
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Roslynator settings
+dotnet_analyzer_diagnostic.category-roslynator.severity = suggestion
+roslynator_refactorings.enabled = true
+roslynator_compiler_diagnostic_fixes.enabled = true
+
+# Unused code
+dotnet_diagnostic.IDE0051.severity = warning  # Remove unused private members
+dotnet_diagnostic.IDE0052.severity = warning  # Remove unread private members
+dotnet_diagnostic.IDE0059.severity = warning  # Unnecessary value assignment
+dotnet_diagnostic.IDE0060.severity = suggestion  # Remove unused parameter
+dotnet_diagnostic.IDE0005.severity = warning  # Remove unnecessary imports
+
+# Null reference warnings
+dotnet_diagnostic.CS8600.severity = warning  # Possible null reference
+dotnet_diagnostic.CS8602.severity = warning  # Dereference of possibly null reference
+dotnet_diagnostic.CS8603.severity = warning  # Possible null reference return
+
+# Useful Roslynator rules
+dotnet_diagnostic.RCS1163.severity = warning  # Unused parameter
+dotnet_diagnostic.RCS1213.severity = warning  # Remove unused member declaration
+dotnet_diagnostic.RCS1036.severity = suggestion  # Remove unnecessary blank line
+
+# Unity-specific suppressions
+dotnet_diagnostic.IDE0044.severity = none  # Add readonly (Unity serialized fields)
+dotnet_diagnostic.CS0649.severity = none  # Field never assigned (Unity Inspector)

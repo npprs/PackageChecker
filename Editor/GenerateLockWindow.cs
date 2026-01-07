@@ -45,7 +45,6 @@ public class GenerateLockWindow : EditorWindow
             var manifestData = JsonConvert.DeserializeObject<NoppersDependencyChecker.ManifestData>(manifestJson);
             _currentPackages = manifestData?.locked;
 
-            // Initialize selection - all unchecked by default
             _packageSelection.Clear();
             if (_currentPackages != null)
             {
@@ -100,7 +99,7 @@ public class GenerateLockWindow : EditorWindow
         infoStyle.normal.textColor = new Color(0.9f, 0.9f, 0.9f);
 
         EditorGUILayout.LabelField(
-            "Create a lock file snapshot of your current VPM packages for this asset.",
+            "Create a lock file snapshot of your current VPM packages for this asset. Ensure you export the dependency checker along with the lock files.",
             infoStyle
         );
 
@@ -177,7 +176,7 @@ public class GenerateLockWindow : EditorWindow
                 {
                     packageStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
                 }
-                EditorGUILayout.LabelField($"📦 {package.Key}", packageStyle, GUILayout.Width(SIZE_256 + SIZE_128 - SIZE_16));
+                EditorGUILayout.LabelField($"{package.Key}", packageStyle, GUILayout.Width(SIZE_256 + SIZE_128 - SIZE_16));
 
                 var versionStyle = new GUIStyle(EditorStyles.boldLabel);
                 versionStyle.fontSize = 11;
