@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NOPPERS.DependencyChecker.Editor.Tests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NOPPERS.PackageChecker.Editor.Tests")]
 
-public class NoppersDependencyChecker
+public class NoppersPackageChecker
 {
     private static bool DEBUG = false;
     public const string MANIFEST_PATH = "Packages/vpm-manifest.json";
@@ -24,13 +24,13 @@ public class NoppersDependencyChecker
         public string version;
     }
 
-    public class DependencyIssue
+    public class PackageIssue
     {
         public string PackageName { get; set; }
         public string ExpectedVersion { get; set; }
         public string ActualVersion { get; set; }  // null = missing package
 
-        public DependencyIssue(string packageName, string expectedVersion, string actualVersion = null)
+        public PackageIssue(string packageName, string expectedVersion, string actualVersion = null)
         {
             PackageName = packageName;
             ExpectedVersion = expectedVersion;
@@ -38,25 +38,25 @@ public class NoppersDependencyChecker
         }
     }
 
-    [MenuItem("Tools/NOPPERS/DependencyChecker/Check Versions")]
-    public static void CheckVersionsMenuItem()
+    [MenuItem("Tools/NOPPERS/PackageChecker/Check Packages")]
+    public static void CheckPackagesMenuItem()
     {
-        CheckVersions();
+        CheckPackages();
     }
 
-    public static void CheckVersionsDelayed()
+    public static void CheckPackagesDelayed()
     {
-        EditorApplication.delayCall += CheckVersions;
+        EditorApplication.delayCall += CheckPackages;
     }
 
-    public static void CheckVersions()
+    public static void CheckPackages()
     {
         // Fetch and process vpm-manifest.json
         string manifest = GetManifest(MANIFEST_PATH);
 
         if (manifest == null)
         {
-            Log("DependencyChecker -> Manifest file could not be read.");
+            Log("PackageChecker -> Manifest file could not be read.");
             return;
         }
 
@@ -64,7 +64,7 @@ public class NoppersDependencyChecker
 
         if (!ValidateManifestStructure(manifestJSON))
         {
-            Log("DependencyChecker -> Manifest JSON structure is invalid.");
+            Log("PackageChecker -> Manifest JSON structure is invalid.");
             return;
         }
 
@@ -73,7 +73,7 @@ public class NoppersDependencyChecker
 
         if (!Directory.Exists(locksDir))
         {
-            Log($"DependencyChecker -> Locks directory not found: {locksDir}");
+            Log($"PackageChecker -> Locks directory not found: {locksDir}");
             return;
         }
 
@@ -89,12 +89,12 @@ public class NoppersDependencyChecker
 
         if (issues != null && issues.Count > 0)
         {
-            DependencyIssuesWindow.ShowWindow(issues);
+            PackageIssuesWindow.ShowWindow(issues);
         }
     }
 
 
-    [MenuItem("Tools/NOPPERS/DependencyChecker/Generate Lock File")]
+    [MenuItem("Tools/NOPPERS/PackageChecker/Generate Lock File")]
     public static void OpenGenerateLockWindow()
     {
         GenerateLockWindow.ShowWindow();
@@ -104,7 +104,7 @@ public class NoppersDependencyChecker
     {
         if (!File.Exists(path))
         {
-            Log("DependencyChecker -> JSON file not found at path: " + path);
+            Log("PackageChecker -> JSON file not found at path: " + path);
             return null;
         }
 
@@ -114,7 +114,7 @@ public class NoppersDependencyChecker
         }
         catch (Exception ex)
         {
-            Log($"DependencyChecker -> Error reading file: {path} - {ex.Message}");
+            Log($"PackageChecker -> Error reading file: {path} - {ex.Message}");
             return null;
         }
     }
@@ -129,19 +129,19 @@ public class NoppersDependencyChecker
     {
         if (data == null)
         {
-            Log("DependencyChecker -> data is null");
+            Log("PackageChecker -> data is null");
             return false;
         }
 
         if (data.locked == null)
         {
-            Log("DependencyChecker -> locked field is null");
+            Log("PackageChecker -> locked field is null");
             return false;
         }
 
         if (data.locked.Count == 0)
         {
-            Log("DependencyChecker -> locked field is empty");
+            Log("PackageChecker -> locked field is empty");
             return false;
         }
 
@@ -149,13 +149,13 @@ public class NoppersDependencyChecker
         {
             if (string.IsNullOrWhiteSpace(dep.Key))
             {
-                Log("DependencyChecker -> dependency key is null or whitespace");
+                Log("PackageChecker -> package key is null or whitespace");
                 return false;
             }
 
             if (dep.Value == null || string.IsNullOrWhiteSpace(dep.Value.version))
             {
-                Log($"DependencyChecker -> dependency '{dep.Key}' has null or whitespace version");
+                Log($"PackageChecker -> package '{dep.Key}' has null or whitespace version");
                 return false;
             }
         }
@@ -214,14 +214,14 @@ public class NoppersDependencyChecker
             string lockJson = getManifestFn(jsonFile);
             if (lockJson == null)
             {
-                Log($"DependencyChecker -> Failed to read: {jsonFile}");
+                Log($"PackageChecker -> Failed to read: {jsonFile}");
                 continue;
             }
 
             var lockData = JsonConvert.DeserializeObject<ManifestData>(lockJson);
             if (!validateManifestFn(lockData))
             {
-                Log($"DependencyChecker -> Invalid structure in: {jsonFile}");
+                Log($"PackageChecker -> Invalid structure in: {jsonFile}");
                 continue;
             }
 
@@ -231,7 +231,7 @@ public class NoppersDependencyChecker
         return lockFiles;
     }
 
-    internal static List<DependencyIssue> CompareManifestsWithMerged(
+    internal static List<PackageIssue> CompareManifestsWithMerged(
         Dictionary<string, string> requirements,
         string manifestJson
     )
@@ -240,11 +240,11 @@ public class NoppersDependencyChecker
 
         if (manifest?.locked == null)
         {
-            Log("DependencyChecker -> Missing locked field in manifest");
+            Log("PackageChecker -> Missing locked field in manifest");
             return null;
         }
 
-        var issues = new List<DependencyIssue>();
+        var issues = new List<PackageIssue>();
 
         foreach (var item in requirements)
         {
@@ -254,7 +254,7 @@ public class NoppersDependencyChecker
             if (!manifest.locked.ContainsKey(packageName))
             {
                 Log($"Missing: {packageName} (v{requiredVersion})");
-                issues.Add(new DependencyIssue(
+                issues.Add(new PackageIssue(
                     packageName,
                     requiredVersion
                 ));
@@ -265,7 +265,7 @@ public class NoppersDependencyChecker
             if (installedVersion != requiredVersion)
             {
                 Log($"Version mismatch {packageName}: required={requiredVersion}, installed={installedVersion}");
-                issues.Add(new DependencyIssue(
+                issues.Add(new PackageIssue(
                     packageName,
                     requiredVersion,
                     installedVersion
@@ -334,7 +334,7 @@ public class NoppersDependencyChecker
 
     internal static bool UpdateManifest(
         string manifestPath,
-        List<DependencyIssue> issues,
+        List<PackageIssue> issues,
         Func<string, string> getManifestFn,
         Func<string, string, bool> writeManifestFn
     )

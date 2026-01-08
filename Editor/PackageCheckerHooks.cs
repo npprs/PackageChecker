@@ -2,30 +2,30 @@ using UnityEditor;
 using System.Linq;
 using System.IO;
 
-// Centralized lifecycle hook control for dependency checker
-public static class DependencyCheckerHooks
+// Centralized lifecycle hook control for package checker
+public static class PackageCheckerHooks
 {
     public static bool Enabled = true;
 }
 
 [InitializeOnLoad]
-public class DependencyCheckerInitializer
+public class PackageCheckerInitializer
 {
-    private const string LAST_MANIFEST_TIME_KEY = "DependencyChecker_LastManifestTime";
-    private const string LAST_SESSION_KEY = "DependencyChecker_LastSessionID";
+    private const string LAST_MANIFEST_TIME_KEY = "PackageChecker_LastManifestTime";
+    private const string LAST_SESSION_KEY = "PackageChecker_LastSessionID";
 
-    static DependencyCheckerInitializer()
+    static PackageCheckerInitializer()
     {
         // Check on every domain reload (Unity startup, script compilation, package changes)
-        if (!DependencyCheckerHooks.Enabled) return;
+        if (!PackageCheckerHooks.Enabled) return;
         CheckIfManifestChanged();
     }
 
     private static void CheckIfManifestChanged()
     {
-        if (!DependencyCheckerHooks.Enabled) return;
+        if (!PackageCheckerHooks.Enabled) return;
 
-        string manifestPath = Path.GetFullPath(NoppersDependencyChecker.MANIFEST_PATH);
+        string manifestPath = Path.GetFullPath(NoppersPackageChecker.MANIFEST_PATH);
         if (!File.Exists(manifestPath))
         {
             return;
@@ -52,12 +52,12 @@ public class DependencyCheckerInitializer
         // Run if new Unity session OR manifest changed
         if (isNewSession || lastModifiedTime != lastStoredTime)
         {
-            NoppersDependencyChecker.CheckVersionsDelayed();
+            NoppersPackageChecker.CheckPackagesDelayed();
         }
     }
 }
 
-public class DependencyCheckerPostprocessor : AssetPostprocessor
+public class PackageCheckerPostprocessor : AssetPostprocessor
 {
     private static void OnPostprocessAllAssets(
         string[] importedAssets,
@@ -65,7 +65,7 @@ public class DependencyCheckerPostprocessor : AssetPostprocessor
         string[] movedAssets,
         string[] movedFromAssetPaths)
     {
-        if (!DependencyCheckerHooks.Enabled) return;
+        if (!PackageCheckerHooks.Enabled) return;
 
         bool lockFileChanged = importedAssets.Where(IsLockFile).Any(IsLocksDirectory) ||
                                deletedAssets.Where(IsLockFile).Any(IsLocksDirectory) ||
@@ -74,7 +74,7 @@ public class DependencyCheckerPostprocessor : AssetPostprocessor
 
         if (lockFileChanged)
         {
-            NoppersDependencyChecker.CheckVersionsDelayed();
+            NoppersPackageChecker.CheckPackagesDelayed();
         }
     }
 
@@ -85,7 +85,7 @@ public class DependencyCheckerPostprocessor : AssetPostprocessor
 
     private static bool IsLocksDirectory(string path)
     {
-        string locksDirAbsolutePath = NoppersDependencyChecker.GetLocksDirectory();
+        string locksDirAbsolutePath = NoppersPackageChecker.GetLocksDirectory();
         string fileDirAbsolutePath = Path.GetDirectoryName(Path.GetFullPath(path));
 
         return fileDirAbsolutePath == locksDirAbsolutePath;

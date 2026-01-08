@@ -1,5 +1,5 @@
 {
-  "name": "NOPPERS.DependencyChecker.Editor",
+  "name": "NOPPERS.PackageChecker.Editor",
   "rootNamespace": "",
   "references": [],
   "includePlatforms": [

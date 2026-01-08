@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-public class DependencyIssuesWindow : EditorWindow
+public class PackageIssuesWindow : EditorWindow
 {
     private const int SIZE_8 = 8;
     private const int SIZE_16 = 16;
@@ -15,22 +15,22 @@ public class DependencyIssuesWindow : EditorWindow
     private const int SIZE_256 = 256;
     private const int SIZE_512 = 512;
 
-    private static List<NoppersDependencyChecker.DependencyIssue> _issues = new();
-    private static DependencyIssuesWindow? _instance;
+    private static List<NoppersPackageChecker.PackageIssue> _issues = new();
+    private static PackageIssuesWindow? _instance;
     private Vector2 _scrollPosition;
     private bool _showAdvancedOptions = false;
 
-    public static void ShowWindow(List<NoppersDependencyChecker.DependencyIssue> issues)
+    public static void ShowWindow(List<NoppersPackageChecker.PackageIssue> issues)
     {
         // Close all existing instances
-        var existingWindows = Resources.FindObjectsOfTypeAll<DependencyIssuesWindow>();
+        var existingWindows = Resources.FindObjectsOfTypeAll<PackageIssuesWindow>();
         foreach (var window in existingWindows)
         {
             window.Close();
         }
 
         _issues = issues;
-        _instance = GetWindow<DependencyIssuesWindow>("Dependency Check");
+        _instance = GetWindow<PackageIssuesWindow>("Package Check");
         _instance.minSize = new Vector2(SIZE_512 + SIZE_128, SIZE_512);
         _instance.Show();
     }
@@ -42,7 +42,7 @@ public class DependencyIssuesWindow : EditorWindow
             EditorApplication.delayCall += () =>
             {
                 if (this != null) Close();
-                NoppersDependencyChecker.CheckVersions();
+                NoppersPackageChecker.CheckPackages();
             };
         }
     }
@@ -59,7 +59,7 @@ public class DependencyIssuesWindow : EditorWindow
     {
         try
         {
-            string locksDir = NoppersDependencyChecker.GetLocksDirectory();
+            string locksDir = NoppersPackageChecker.GetLocksDirectory();
             string disabledDir = Path.Combine(Path.GetDirectoryName(locksDir)!, "Locks_Disabled").Replace("\\", "/");
 
             // Find all lock files
@@ -74,6 +74,7 @@ public class DependencyIssuesWindow : EditorWindow
             if (!Directory.Exists(disabledDir))
             {
                 Directory.CreateDirectory(disabledDir);
+                AssetDatabase.Refresh();
             }
 
             int movedCount = 0;
@@ -130,12 +131,12 @@ public class DependencyIssuesWindow : EditorWindow
         try
         {
             // Update manifest with required versions
-            string manifestPath = NoppersDependencyChecker.MANIFEST_PATH;
+            string manifestPath = NoppersPackageChecker.MANIFEST_PATH;
 
-            if (!NoppersDependencyChecker.UpdateManifest(
+            if (!NoppersPackageChecker.UpdateManifest(
                 manifestPath,
                 _issues,
-                NoppersDependencyChecker.GetManifest,
+                NoppersPackageChecker.GetManifest,
                 (path, content) => {
                     try
                     {
@@ -192,6 +193,43 @@ public class DependencyIssuesWindow : EditorWindow
         {
             Debug.LogError($"Failed to trigger Resolve All: {ex.Message}\n{ex.StackTrace}");
         }
+    }
+
+    private void DrawFooterLink()
+    {
+        EditorGUILayout.Space(SIZE_8);
+
+        // Separator line
+        var separatorRect = EditorGUILayout.GetControlRect(false, 1);
+        EditorGUI.DrawRect(separatorRect, new Color(0.3f, 0.3f, 0.3f));
+
+        EditorGUILayout.Space(SIZE_8);
+
+        // Center the link
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+
+        // Create link style
+        var linkStyle = new GUIStyle(EditorStyles.label);
+        linkStyle.fontSize = 11;
+        linkStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
+        linkStyle.alignment = TextAnchor.MiddleCenter;
+
+        // Create clickable label
+        var linkRect = GUILayoutUtility.GetRect(new GUIContent("Tool by NOPPERS"), linkStyle);
+        EditorGUI.LabelField(linkRect, "Tool by NOPPERS", linkStyle);
+        EditorGUIUtility.AddCursorRect(linkRect, MouseCursor.Link);
+
+        if (Event.current.type == EventType.MouseDown && linkRect.Contains(Event.current.mousePosition))
+        {
+            Application.OpenURL("https://linktr.ee/noppers");
+            Event.current.Use();
+        }
+
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space(SIZE_8);
     }
 
     private void OnGUI()
@@ -353,7 +391,7 @@ public class DependencyIssuesWindow : EditorWindow
             advancedWarningStyle.wordWrap = true;
 
             EditorGUILayout.LabelField(
-                "Fix all attempts to repair package dependency issues. If you would like to use your own packages you can disable the lock files.",
+                "Fix all attempts to repair package package issues. If you would like to use your own packages you can disable the lock files.",
                 advancedWarningStyle
             );
 
@@ -416,5 +454,7 @@ public class DependencyIssuesWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space(SIZE_8);
+
+        DrawFooterLink();
     }
 }

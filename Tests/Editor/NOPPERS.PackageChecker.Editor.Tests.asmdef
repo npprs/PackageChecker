@@ -1,10 +1,10 @@
 {
-  "name": "NOPPERS.DependencyChecker.Editor.Tests",
+  "name": "NOPPERS.PackageChecker.Editor.Tests",
   "rootNamespace": "",
   "references": [
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
-    "NOPPERS.DependencyChecker.Editor"
+    "NOPPERS.PackageChecker.Editor"
   ],
   "includePlatforms": [
     "Editor"
