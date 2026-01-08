@@ -80,42 +80,6 @@ public class GenerateLockWindow : EditorWindow
         }
     }
 
-    private void DrawFooterLink()
-    {
-        EditorGUILayout.Space(SIZE_8);
-
-        // Separator line
-        var separatorRect = EditorGUILayout.GetControlRect(false, 1);
-        EditorGUI.DrawRect(separatorRect, new Color(0.3f, 0.3f, 0.3f));
-
-        EditorGUILayout.Space(SIZE_8);
-
-        // Center the link
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.FlexibleSpace();
-
-        // Create link style
-        var linkStyle = new GUIStyle(EditorStyles.label);
-        linkStyle.fontSize = 11;
-        linkStyle.normal.textColor = new Color(0.5f, 0.5f, 0.5f);
-        linkStyle.alignment = TextAnchor.MiddleCenter;
-
-        // Create clickable label
-        var linkRect = GUILayoutUtility.GetRect(new GUIContent("Tool by NOPPERS"), linkStyle);
-        EditorGUI.LabelField(linkRect, "Tool by NOPPERS", linkStyle);
-        EditorGUIUtility.AddCursorRect(linkRect, MouseCursor.Link);
-
-        if (Event.current.type == EventType.MouseDown && linkRect.Contains(Event.current.mousePosition))
-        {
-            Application.OpenURL("https://linktr.ee/noppers");
-            Event.current.Use();
-        }
-
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space(SIZE_8);
-    }
 
     private void OnGUI()
     {
@@ -269,6 +233,6 @@ public class GenerateLockWindow : EditorWindow
 
         EditorGUILayout.Space(SIZE_8);
 
-        DrawFooterLink();
+        PackageCheckerComponents.CreditFooter();
     }
 }
